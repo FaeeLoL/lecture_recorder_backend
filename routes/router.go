@@ -12,7 +12,17 @@ func InitRoutes() *gin.Engine {
 	router.Use(cors.Default())
 
 	apiGroup := router.Group("/api")
-	user := new(controllers.UserController)
-	apiGroup.GET("/test", user.Test)
+
+
+
+	topics := apiGroup.Group("/topics")
+	{
+		topicsController := new(controllers.TopicsController)
+		topics.POST("/", topicsController.Create)
+		topics.GET("/", topicsController.List)
+		topics.GET("/:id", topicsController.Get)
+		topics.PUT("/:id", topicsController.Put)
+		topics.DELETE("/:id", topicsController.Delete)
+	}
 	return router
 }

@@ -12,7 +12,7 @@ var DB *gorm.DB
 func InitDB() (*gorm.DB, error) {
 	db, err := gorm.Open(
 		"mysql",
-		fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8",
+		fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=True&loc=Local",
 			configs.DBConfigs.Login,
 			configs.DBConfigs.Password,
 			configs.DBConfigs.Address,

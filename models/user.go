@@ -7,3 +7,5 @@ type User struct {
 	Username string `gorm:"unique_index"`
 	Password string
 }
+
+

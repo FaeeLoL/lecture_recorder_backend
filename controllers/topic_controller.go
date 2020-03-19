@@ -54,12 +54,12 @@ func (a *TopicsController) List(c *gin.Context) {
 
 func (a *TopicsController) Get(c *gin.Context) {
 	var topic models.Topic
-	id, res := c.Params.Get("id")
+	topicID, res := c.Params.Get("topic_id")
 	if !res {
-		a.JsonFail(c, http.StatusBadRequest, "Empty id field")
+		a.JsonFail(c, http.StatusBadRequest, "Empty topicID field")
 		return
 	}
-	if err := database.DB.Find(&topic, "id = ?", id).Error; err != nil {
+	if err := database.DB.Find(&topic, "id = ?", topicID).Error; err != nil {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -69,7 +69,7 @@ func (a *TopicsController) Get(c *gin.Context) {
 func (a *TopicsController) Put(c *gin.Context) {
 	var topic models.Topic
 
-	id, res := c.Params.Get("id")
+	id, res := c.Params.Get("topic_id")
 	if !res {
 		a.JsonFail(c, http.StatusBadRequest, "Empty id field")
 		return
@@ -99,7 +99,7 @@ func (a *TopicsController) Put(c *gin.Context) {
 func (a *TopicsController) Delete(c *gin.Context) {
 	var topic models.Topic
 
-	id, res := c.Params.Get("id")
+	id, res := c.Params.Get("topic_id")
 	if !res {
 		a.JsonFail(c, http.StatusBadRequest, "Empty id field")
 		return

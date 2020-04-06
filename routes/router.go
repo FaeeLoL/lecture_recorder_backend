@@ -11,9 +11,26 @@ func InitRoutes() *gin.Engine {
 
 	router.Use(cors.Default())
 
-	apiGroup := router.Group("/api")
+	apiGroup := router.Group("/api/v1")
 
+	publicGroup := router.Group("/api/v1")
 
+	authGroup := apiGroup.Group("/auth")
+	{
+		authController := new(controllers.AuthController)
+		authMiddleware := authController.Init()
+		authGroup.POST("login", authMiddleware.LoginHandler)
+		authGroup.GET("/refresh_token", authMiddleware.RefreshHandler)
+		//authGroup.Use(authMiddleware.MiddlewareFunc())
+		apiGroup.Use(authMiddleware.MiddlewareFunc())
+	}
+
+	users := apiGroup.Group("/users")
+	{
+		usersController := new(controllers.UserController)
+		publicGroup.POST("/users", usersController.Create)
+		users.GET("/self_info", usersController.SelfInfo)
+	}
 
 	topics := apiGroup.Group("/topics")
 	{

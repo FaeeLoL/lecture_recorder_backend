@@ -1,12 +1,15 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"fmt"
+	"github.com/jinzhu/gorm"
+)
 
 type Topic struct {
 	gorm.Model
 	Name        string
 	Description string
-	Courses     []Course `gorm:"foreignkey:Topic"`
+	Courses     []Course `gorm:"foreignkey:TopicRefer"`
 }
 
 type TopicMinified struct {
@@ -17,6 +20,9 @@ type TopicMinified struct {
 }
 
 func (t Topic) Minify() *TopicMinified {
+	for _, c := range t.Courses {
+		fmt.Printf("courses: %+v\n", c)
+	}
 	return &TopicMinified{
 		ID:          t.ID,
 		Name:        t.Name,

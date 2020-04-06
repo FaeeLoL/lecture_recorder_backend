@@ -6,26 +6,31 @@ type Course struct {
 	gorm.Model
 	Name        string
 	Description string
-	Owner       string
-	Audios      []Audio `gorm:"foreignkey:Course"`
+	Owner       uint
+	Audios      []Audio `gorm:"foreignkey:Audio"`
 	Topic       uint
 }
 
-type CourseMinified struct {
-	ID          uint
-	Name        string
-	Description string
-	Audios      int
-	Topic       uint
+type BasicCourseSchema struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Audios      int    `json:"audios"`
+	Topic       uint   `json:"topic"`
 }
 
 type CoursePost struct {
-	Name        string
-	Description string
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description" binding:"required"`
 }
 
-func (c Course) Minify() *CourseMinified {
-	return &CourseMinified{
+type CoursePut struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+}
+
+func (c Course) ToBasicCourseSchema() *BasicCourseSchema {
+	return &BasicCourseSchema{
 		ID:          c.ID,
 		Name:        c.Name,
 		Description: c.Description,

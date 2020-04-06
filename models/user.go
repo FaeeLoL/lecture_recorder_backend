@@ -19,15 +19,15 @@ type UserPost struct {
 }
 
 type BasicUserSchema struct {
-	ID        uint    `json:"id"`
+	ID        uint      `json:"id"`
 	Username  string    `json:"username"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
 func (u User) ToBasicUserSchema() BasicUserSchema {
 	return BasicUserSchema{
-		ID:u.ID,
-		Username: u.Username,
+		ID:        u.ID,
+		Username:  u.Username,
 		CreatedAt: u.CreatedAt,
 	}
 }

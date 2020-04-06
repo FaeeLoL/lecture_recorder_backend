@@ -6,6 +6,7 @@ type Course struct {
 	gorm.Model
 	Name        string
 	Description string
+	Owner       string
 	Audios      []Audio `gorm:"foreignkey:Course"`
 	Topic       uint
 }
@@ -16,6 +17,11 @@ type CourseMinified struct {
 	Description string
 	Audios      int
 	Topic       uint
+}
+
+type CoursePost struct {
+	Name        string
+	Description string
 }
 
 func (c Course) Minify() *CourseMinified {

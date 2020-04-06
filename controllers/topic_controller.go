@@ -4,9 +4,8 @@ import (
 	"github.com/faeelol/lecture_recorder_backend/database"
 	"github.com/faeelol/lecture_recorder_backend/models"
 	"github.com/gin-gonic/gin"
-	"log"
+	"github.com/jinzhu/gorm"
 	"net/http"
-	"strconv"
 )
 
 type TopicsController struct {
@@ -14,29 +13,29 @@ type TopicsController struct {
 }
 
 func (a *TopicsController) Create(c *gin.Context) {
-	var newTopic models.Topic
+	var newTopic models.TopicPost
 
 	err := c.Bind(&newTopic)
 	if err != nil {
 		a.JsonFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	tx := database.DB.Begin()
-	if err = tx.Error; err != nil {
-		log.Printf("Failed to create transaction: %+v", err.Error())
-		a.JsonFail(c, http.StatusInternalServerError, err.Error())
+	if !isTopicNameUnique(newTopic.Name) {
+		a.JsonFail(c, http.StatusBadRequest, "topic name is already taken")
 		return
 	}
-	if err = tx.Save(&newTopic).Error; err != nil {
-		tx.Rollback()
-		a.JsonFail(c, http.StatusInternalServerError, err.Error())
-		return
+
+	uid := GetAuthUserClaims(c)
+	topic := models.Topic{
+		Name:        newTopic.Name,
+		Description: newTopic.Description,
+		Owner:       uid,
+		Courses:     nil,
 	}
-	if err := tx.Commit().Error; err != nil {
-		a.JsonFail(c, http.StatusInternalServerError, err.Error())
-		return
+	if err := database.DB.Save(&topic).Error; err != nil {
+		panic(err)
 	}
-	a.JsonSuccess(c, http.StatusCreated, newTopic.Minify())
+	a.JsonSuccess(c, http.StatusCreated, topic.ToBasicTopicSchema())
 }
 
 func (a *TopicsController) List(c *gin.Context) {
@@ -45,9 +44,9 @@ func (a *TopicsController) List(c *gin.Context) {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	var minifiedTopics []models.TopicMinified
+	var minifiedTopics []models.BasicTopicSchema
 	for _, topic := range topics {
-		minifiedTopics = append(minifiedTopics, *topic.Minify())
+		minifiedTopics = append(minifiedTopics, *topic.ToBasicTopicSchema())
 	}
 	a.JsonSuccess(c, http.StatusOK, &minifiedTopics)
 }
@@ -63,7 +62,7 @@ func (a *TopicsController) Get(c *gin.Context) {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	a.JsonSuccess(c, http.StatusOK, topic.Minify())
+	a.JsonSuccess(c, http.StatusOK, topic.ToBasicTopicSchema())
 }
 
 func (a *TopicsController) Put(c *gin.Context) {
@@ -78,22 +77,33 @@ func (a *TopicsController) Put(c *gin.Context) {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	err := c.Bind(&topic)
+	uid := GetAuthUserClaims(c)
+	if topic.Owner != uid {
+		a.JsonFail(c, http.StatusForbidden, "the operation for current user is forbidden")
+		return
+	}
+
+	var changingTopic models.TopicPut
+	err := c.Bind(&changingTopic)
 	if err != nil {
 		a.JsonFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	//todo
-	id_i, _ := strconv.Atoi(id)
-	if topic.ID != uint(id_i) {
-		a.JsonFail(c, http.StatusBadRequest, "Changing ID prohibited")
-		return
+	if changingTopic.Name != nil {
+		if !isTopicNameUnique(*changingTopic.Name) {
+			a.JsonFail(c, http.StatusBadRequest, "the new topic name is already taken")
+			return
+		}
+		topic.Name = *changingTopic.Name
+	}
+	if changingTopic.Description != nil {
+		topic.Description = *changingTopic.Description
 	}
 	if err := database.DB.Save(&topic).Error; err != nil {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	a.JsonSuccess(c, http.StatusOK, topic.Minify())
+	a.JsonSuccess(c, http.StatusOK, topic.ToBasicTopicSchema())
 }
 
 func (a *TopicsController) Delete(c *gin.Context) {
@@ -104,9 +114,26 @@ func (a *TopicsController) Delete(c *gin.Context) {
 		a.JsonFail(c, http.StatusBadRequest, "Empty id field")
 		return
 	}
+
+	if err := database.DB.Find(&topic, "id = ?", id).Error; err != nil {
+		a.JsonFail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	uid := GetAuthUserClaims(c)
+	if topic.Owner != uid {
+		a.JsonFail(c, http.StatusForbidden, "the operation for curent user is forbidden")
+		return
+	}
+
 	if err := database.DB.Delete(&topic, "id = ?", id).Error; err != nil {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	a.JsonSuccess(c, http.StatusNoContent, nil)
+}
+
+func isTopicNameUnique(name string) bool {
+	var topic models.Topic
+	return gorm.IsRecordNotFoundError(database.DB.Where("name = ?", name).First(&topic).Error)
 }

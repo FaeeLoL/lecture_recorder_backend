@@ -23,6 +23,6 @@ func InitDB() (*gorm.DB, error) {
 	}
 	db.DB().SetMaxIdleConns(100)
 	DB = db
-	db.AutoMigrate(&models.User{}, &models.Topic{}, &models.Course{}, &models.Audio{})
+	db.AutoMigrate(&models.User{}, &models.Topic{}, &models.Course{}, &models.Lecture{})
 	return db, err
 }

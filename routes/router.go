@@ -48,5 +48,16 @@ func InitRoutes() *gin.Engine {
 		courses.PUT("/:course_id", coursesController.Put)
 		courses.DELETE("/:course_id", coursesController.Delete)
 	}
+	files := apiGroup.Group("/files")
+	lectures := apiGroup.Group("/lectures")
+	{
+		lecturesController := new(controllers.LecturesController)
+		lectures.POST("/", lecturesController.Create)
+		//lectures.GET("/", lecturesController.List)
+		lectures.GET("/:lecture_id", lecturesController.Get)
+		lectures.PUT("/:lecture_id", lecturesController.Put)
+		lectures.DELETE("/:lecture_id", lecturesController.Delete)
+		files.GET("/:file", lecturesController.GetAudio)
+	}
 	return router
 }

@@ -194,7 +194,7 @@ func isTopicOwner(userId uint, topicId uint) bool {
 func isCourseOwner(userId uint, courseId uint) bool {
 	var course models.Course
 	if err := database.DB.Where("id = ?", courseId).First(&course).Error; err != nil {
-		panic(err)
+		return false
 	}
 	return course.Owner == userId
 }

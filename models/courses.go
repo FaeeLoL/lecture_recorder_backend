@@ -7,7 +7,7 @@ type Course struct {
 	Name        string
 	Description string
 	Owner       uint
-	Audios      []Audio `gorm:"foreignkey:Audio"`
+	Audios      []Lecture `gorm:"foreignkey:Audio"`
 	Topic       uint
 }
 

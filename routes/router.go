@@ -48,7 +48,6 @@ func InitRoutes() *gin.Engine {
 		courses.PUT("/:course_id", coursesController.Put)
 		courses.DELETE("/:course_id", coursesController.Delete)
 	}
-	files := apiGroup.Group("/files")
 	lectures := apiGroup.Group("/lectures")
 	{
 		lecturesController := new(controllers.LecturesController)
@@ -57,7 +56,20 @@ func InitRoutes() *gin.Engine {
 		lectures.GET("/:lecture_id", lecturesController.Get)
 		lectures.PUT("/:lecture_id", lecturesController.Put)
 		lectures.DELETE("/:lecture_id", lecturesController.Delete)
-		files.GET("/:file", lecturesController.GetAudio)
+		//notes := lectures.Group("/:lecture_id/notes")
+		//{
+		//	notesController := new(controllers.NotesController)
+		//	//notes.POST("/", notesController.Create)
+		//	//notes.GET("/", notesController.List)
+		//	//notes.GET("/:note_id", notesController.Get)
+		//	//notes.PUT("/:note_id", notesController.Put)
+		//	//notes.DELETE("/:note_id", notesController.Delete)
+		//}
+	}
+	files := apiGroup.Group("/files")
+	{
+		filesController := new(controllers.FilesController)
+		files.GET("/:file", filesController.GetFile)
 	}
 	return router
 }

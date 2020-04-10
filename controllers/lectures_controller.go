@@ -137,6 +137,20 @@ func (l LecturesController) Delete(c *gin.Context) {
 	l.JsonSuccess(c, http.StatusNoContent, nil)
 }
 
+func (l LecturesController) List(c *gin.Context) {
+	courseId := c.Request.URL.Query().Get("course_id")
+	var lectures []models.Lecture
+	if err := database.DB.Where("course_id = ?", courseId).Find(&lectures).Error; err != nil {
+		panic(err)
+	}
+
+	results := make([]models.BasicLectureSchema, 0)
+	for _, lecture := range lectures {
+		results = append(results, lecture.ToBasicLectureSchema())
+	}
+	l.JsonSuccess(c, http.StatusOK, results)
+}
+
 func isLectureNameUnique(name string, courseId uint) bool {
 	var lecture models.Lecture
 	return gorm.IsRecordNotFoundError(database.DB.Where("name = ? AND course_id = ?", name, courseId).First(&lecture).Error)

@@ -52,7 +52,7 @@ func InitRoutes() *gin.Engine {
 	{
 		lecturesController := new(controllers.LecturesController)
 		lectures.POST("/", lecturesController.Create)
-		//lectures.GET("/", lecturesController.List)
+		lectures.GET("/", lecturesController.List)
 		lectures.GET("/:lecture_id", lecturesController.Get)
 		lectures.PUT("/:lecture_id", lecturesController.Put)
 		lectures.DELETE("/:lecture_id", lecturesController.Delete)

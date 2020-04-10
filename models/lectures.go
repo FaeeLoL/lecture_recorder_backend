@@ -16,7 +16,7 @@ type LecturePost struct {
 }
 
 type LecturePut struct {
-	Name *string `json:"name" form:"name" binding:"required"`
+	Name *string `json:"name" form:"name"`
 }
 
 type Notes struct {

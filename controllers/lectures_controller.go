@@ -60,15 +60,6 @@ func (l LecturesController) Create(c *gin.Context) {
 	l.JsonSuccess(c, http.StatusCreated, lecture.ToBasicLectureSchema())
 }
 
-func (l LecturesController) GetAudio(c *gin.Context) {
-	filename, res := c.Params.Get("file")
-	if !res {
-		l.JsonFail(c, http.StatusBadRequest, "Empty file field")
-		return
-	}
-	c.File(path.Join("data", filename))
-}
-
 func (l LecturesController) Get(c *gin.Context) {
 	var lecture models.Lecture
 	lectureID, res := c.Params.Get("lecture_id")
@@ -160,4 +151,10 @@ func newRandomFilename() string {
 		b[i] = charset[rand.Intn(len(charset))]
 	}
 	return string(b)
+}
+
+func isLectureOwner(uid uint, lectureId uint) bool {
+	var lecture models.Lecture
+	database.DB.Where("id = ?", lectureId).First(&lecture)
+	return isCourseOwner(uid, lecture.CourseId)
 }

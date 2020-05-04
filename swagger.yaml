@@ -1,0 +1,352 @@
+swagger: '2.0'
+info:
+  description: | 
+    API for lecture-recorder-backend
+  title: Lecture Recorder
+  version: 1.0.0
+paths:
+  /topics:
+    post:
+      tags:
+      - topics
+      summary: Add a new topic
+      operationId: creteTopic
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Topic object that needs to be added
+        required: true
+        schema:
+          $ref: '#/definitions/TopicBase'
+      responses:
+        400:
+          description: Invalid input
+        201: 
+          description: Topic created
+          schema:
+            $ref: '#/definitions/TopicMinified'
+    get:
+      tags:
+      - topics
+      description: Fetch details of topics
+      summary: GetTopics
+      produces:
+      - applicatoin/json
+      responses:
+        200:
+          description: Success
+          schema: 
+            $ref: '#/definitions/TopicsList'
+        401:
+          description: The request was denied due to an invalid or missing bearer access token.
+          schema:
+            $ref: '#/definitions/errorScheme'
+          examples:
+            application/json:
+              error:
+                message: Authentication is required
+  /topics/{topic_id}:
+    get:
+      tags:
+      - topics
+      summary: Get infromation about topic
+      operationId: getTopic
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: topic_id
+        description: Topic ID
+        type: string
+        required: true
+      responses:
+        400:
+          description: Invalid input
+        500:
+          description: Internal server error
+        201: 
+          description: Topic information
+          schema:
+            $ref: '#/definitions/TopicMinified'
+    put:
+      tags:
+      - topics
+      summary: Update topic infromation
+      operationId: updateTopic
+      consumes:
+      - applicatoin/json
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: topic_id
+        description: Topic ID
+        type: string
+        required: true
+      - in: body
+        name: body
+        description: Topic infromation that needs to be updated
+        required: true
+        schema:
+          $ref: '#/definitions/TopicBase'
+      responses:
+        200:
+          description: Topic information updated
+          schema:
+            $ref: '#/definitions/TopicMinified'
+    delete:
+      tags:
+      - topics
+      summary: Delete  topic
+      operationId: deleteTopic
+      parameters:
+      - in: path
+        name: topic_id
+        description: Topic ID
+        type: string
+        required: true
+      responses:
+        400:
+          description: Invalid input
+        500:
+          description: Internal server error
+        204: 
+          description: Topic deleted
+  /topics/{topic_id}/courses:
+    get:
+      tags:
+      - courses
+      summary: Get list of courses
+      operationId: listCourses
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: topic_id
+        description: Topic ID
+        type: string
+        required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/CoursesList'
+    post:
+      tags:
+      - courses
+      summary: Add a new course
+      operationId: createCourse
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: topic_id
+        description: Topic ID
+        type: string
+        required: true
+      - in: body
+        name: body
+        description: Course object that needs to be added
+        required: true
+        schema:
+          $ref: '#/definitions/CourseBase'
+      responses:
+        400:
+          description: Invalid input
+        201: 
+          description: Topic created
+          schema:
+            $ref: '#/definitions/TopicMinified'
+  /topics/{topic_id}/courses/{course_id}:
+    get:
+      tags:
+      - courses
+      summary: Get course information
+      operationId: getCourse
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: topic_id
+        description: Topic ID
+        type: string
+        required: true
+      - in: path
+        name: course_id
+        description: Topic ID
+        type: string
+        required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/CourseMinified'
+    put:
+      tags:
+      - courses
+      summary: Get course information
+      operationId: updateCourse
+      consumes:
+      - applicatoin/json
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: topic_id
+        description: Topic ID
+        type: string
+        required: true
+      - in: path
+        name: course_id
+        description: Topic ID
+        type: string
+        required: true
+      - in: body
+        name: body
+        description: Course information that needs to be updated
+        required: true
+        schema:
+          $ref: '#/definitions/CourseBase'
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/CourseMinified'
+    delete:
+      tags:
+      - courses
+      summary: Delete  course
+      operationId: deleteCourse
+      parameters:
+      - in: path
+        name: topic_id
+        description: Topic ID
+        type: string
+        required: true
+      - in: path
+        name: course_id
+        description: Course ID
+        type: string
+        required: true
+      responses:
+        400:
+          description: Invalid input
+        500:
+          description: Internal server error
+        204: 
+          description: Topic deleted
+definitions:
+  TopicBase:
+      type: object
+      required:
+      - name
+      - description
+      properties:
+        name:
+          type: string
+          example: Calculus
+        description:
+          type: string
+          example: Calculus topic
+  TopicMinified:
+      type: object
+      properties:
+        ID:
+          type: integer
+          format: int32
+          description: The topic ID
+          example: 12
+        Name:
+          type: string
+          example: Calculus
+        Description:
+          type: string
+          example: Calculus topic
+        Courses:
+          type: integer
+          description: The number of courses in this topic
+          example: 0
+  TopicsList:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/TopicMinified'
+  CourseBase:
+      type: object
+      required:
+      - name
+      - description
+      properties:
+        name:
+          type: string
+          example: Linear algebra
+        description:
+          type: string
+          example: Linear algebra info
+  CourseMinified:
+      type: object
+      properties:
+        ID:
+          type: integer
+          format: int32
+          description: The course ID
+          example: 12
+        Name:
+          type: string
+          example: Linear algebra
+        Description:
+          type: string
+          example: Linear algebra topic
+        Audios:
+          type: integer
+          description: The number of audios in this course
+          example: 0
+  CoursesList:
+    type: array
+    items:
+      $ref: '#/definitions/CourseMinified'
+  errorScheme:
+    title: errorScheme
+    type: object
+    properties:
+      error:
+        $ref: '#/definitions/Error'
+    required:
+    - error
+  Error:
+    title: Error
+    type: object
+    properties:
+      message:
+        type: string
+    required:
+    - message
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+# Added by API Auto Mocking Plugin
+schemes:
+ - https
+ - http
+# Added by API Auto Mocking Plugin
+# Added by API Auto Mocking Plugin
+tags:
+- name: topics
+  description: Topics
+- name: courses
+  description: Courses
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
+# basePath: /api/v1
+# Added by API Auto Mocking Plugin
+basePath: /FaeeLoL7/Lecture_recorder/1.0.0

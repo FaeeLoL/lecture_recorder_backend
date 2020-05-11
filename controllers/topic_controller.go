@@ -44,7 +44,7 @@ func (a *TopicsController) List(c *gin.Context) {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	var minifiedTopics []models.BasicTopicSchema
+	minifiedTopics := make([]models.BasicTopicSchema, 0)
 	for _, topic := range topics {
 		minifiedTopics = append(minifiedTopics, *topic.ToBasicTopicSchema())
 	}

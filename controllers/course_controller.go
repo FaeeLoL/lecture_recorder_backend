@@ -73,7 +73,7 @@ func (a *CourseController) List(c *gin.Context) {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	var minifiedCourses []models.BasicCourseSchema
+	minifiedCourses := make([]models.BasicCourseSchema, 0)
 	for _, course := range courses {
 		minifiedCourses = append(minifiedCourses, *course.ToBasicCourseSchema())
 	}

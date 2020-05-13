@@ -40,9 +40,17 @@ func (a *TopicsController) Create(c *gin.Context) {
 
 func (a *TopicsController) List(c *gin.Context) {
 	var topics []models.Topic
-	if err := database.DB.Find(&topics).Error; err != nil {
-		a.JsonFail(c, http.StatusInternalServerError, err.Error())
-		return
+	uid := c.Request.URL.Query().Get("user_id")
+	if uid != "" {
+		if err := database.DB.Where("owner = ?", uid).Find(&topics).Error; err != nil {
+			a.JsonFail(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	} else {
+		if err := database.DB.Find(&topics).Error; err != nil {
+			a.JsonFail(c, http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 	minifiedTopics := make([]models.BasicTopicSchema, 0)
 	for _, topic := range topics {

@@ -26,8 +26,8 @@ func (a AuthController) Init() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
 		Key:         []byte("secret key"), //todo get from env
-		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
+		Timeout:     12 * time.Hour,
+		MaxRefresh:  12 * time.Hour,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*models.User); ok {
@@ -40,7 +40,7 @@ func (a AuthController) Init() *jwt.GinJWTMiddleware {
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
 			return &models.User{
-				ID: uint(claims[identityKey].(float64)),		//todo IDK why it become float64
+				ID: uint(claims[identityKey].(float64)), //todo IDK why it become float64
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -95,7 +95,7 @@ func (a AuthController) Init() *jwt.GinJWTMiddleware {
 
 func GetAuthUserClaims(c *gin.Context) uint {
 	claims := jwt.ExtractClaims(c)
-	return uint(claims["id"].(float64))		//todo IDK why it become float64
+	return uint(claims["id"].(float64)) //todo IDK why it become float64
 }
 
 func Hash(input string) string {

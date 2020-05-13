@@ -71,5 +71,10 @@ func InitRoutes() *gin.Engine {
 		filesController := new(controllers.FilesController)
 		files.GET("/:file", filesController.GetFile)
 	}
+	search := apiGroup.Group("/search")
+	{
+		searchController := new(controllers.SearchController)
+		search.GET("", searchController.Get)
+	}
 	return router
 }

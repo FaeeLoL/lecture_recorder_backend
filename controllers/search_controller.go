@@ -51,7 +51,7 @@ func (s SearchController) Get(c *gin.Context) {
 }
 
 type searchResponse struct {
-	Topics   []models.BasicTopicSchema   `json:"topics"`
+	Topics   []models.BasicTopicSchema   `json:"Topics"`
 	Courses  []models.BasicCourseSchema  `json:"courses"`
 	Lectures []models.BasicLectureSchema `json:"lectures"`
 }

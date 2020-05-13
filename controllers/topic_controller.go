@@ -138,6 +138,7 @@ func (a *TopicsController) Delete(c *gin.Context) {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	database.DB.Delete(&models.TopicSubscribe{}, "topic_id = ?", id)
 	a.JsonSuccess(c, http.StatusNoContent, nil)
 }
 

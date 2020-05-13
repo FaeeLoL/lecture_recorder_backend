@@ -66,6 +66,14 @@ func InitRoutes() *gin.Engine {
 			notes.DELETE("/:note_id", notesController.Delete)
 		}
 	}
+	subscribes := apiGroup.Group("/subscribes")
+	{
+		subscribesController := new(controllers.SubscribesController)
+		subscribes.POST("/", subscribesController.Create)
+		subscribes.DELETE("/", subscribesController.Delete)
+		subscribes.GET("/", subscribesController.List)
+	}
+
 	files := apiGroup.Group("/files")
 	{
 		filesController := new(controllers.FilesController)

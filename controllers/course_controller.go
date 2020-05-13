@@ -179,6 +179,7 @@ func (a *CourseController) Delete(c *gin.Context) {
 	if err := database.DB.Delete(&course, "id = ?", courseIDint).Error; err != nil {
 		panic(err)
 	}
+	database.DB.Delete(&models.CourseSubscribe{}, "course_id = ?", courseIDint)
 	a.JsonSuccess(c, http.StatusNoContent, nil)
 }
 

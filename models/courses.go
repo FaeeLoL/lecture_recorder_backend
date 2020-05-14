@@ -17,6 +17,7 @@ type BasicCourseSchema struct {
 	Description string `json:"description"`
 	Audios      int    `json:"audios"`
 	Topic       uint   `json:"topic"`
+	IsOwner     bool   `json:"is_owner"`
 }
 
 type CoursePost struct {
@@ -29,12 +30,13 @@ type CoursePut struct {
 	Description *string `json:"description"`
 }
 
-func (c Course) ToBasicCourseSchema() *BasicCourseSchema {
+func (c Course) ToBasicCourseSchema(uid uint) *BasicCourseSchema {
 	return &BasicCourseSchema{
 		ID:          c.ID,
 		Name:        c.Name,
 		Description: c.Description,
 		Audios:      len(c.Audios),
 		Topic:       c.Topic,
+		IsOwner:     c.Owner == uid,
 	}
 }

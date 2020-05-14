@@ -12,6 +12,7 @@ type SearchController struct {
 }
 
 func (s SearchController) Get(c *gin.Context) {
+	uid := GetAuthUserClaims(c)
 	key := c.Request.URL.Query().Get("key")
 	if key == "" {
 		s.JsonFail(c, http.StatusBadRequest, "Empty `key` field")
@@ -24,7 +25,7 @@ func (s SearchController) Get(c *gin.Context) {
 	}
 	minifiedTopics := make([]models.BasicTopicSchema, 0)
 	for _, topic := range topics {
-		minifiedTopics = append(minifiedTopics, *topic.ToBasicTopicSchema())
+		minifiedTopics = append(minifiedTopics, *topic.ToBasicTopicSchema(uid))
 	}
 	var courses []models.Course
 	if err := database.DB.Where("name LIKE ?", "%"+key+"%").Find(&courses).Error; err != nil {
@@ -32,7 +33,7 @@ func (s SearchController) Get(c *gin.Context) {
 	}
 	minifiedCourses := make([]models.BasicCourseSchema, 0)
 	for _, course := range courses {
-		minifiedCourses = append(minifiedCourses, *course.ToBasicCourseSchema())
+		minifiedCourses = append(minifiedCourses, *course.ToBasicCourseSchema(uid))
 	}
 	var lectures []models.Lecture
 	if err := database.DB.Where("name LIKE ?", "%"+key+"%").Find(&lectures).Error; err != nil {

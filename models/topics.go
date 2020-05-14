@@ -27,13 +27,15 @@ type BasicTopicSchema struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Courses     int    `json:"courses"`
+	IsOwner     bool   `json:"is_owner"`
 }
 
-func (t Topic) ToBasicTopicSchema() *BasicTopicSchema {
+func (t Topic) ToBasicTopicSchema(uid uint) *BasicTopicSchema {
 	return &BasicTopicSchema{
 		ID:          t.ID,
 		Name:        t.Name,
 		Description: t.Description,
 		Courses:     len(t.Courses), //todo fix relations
+		IsOwner:     uid == t.Owner,
 	}
 }

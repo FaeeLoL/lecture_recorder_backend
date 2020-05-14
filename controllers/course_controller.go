@@ -50,10 +50,11 @@ func (a *CourseController) Create(c *gin.Context) {
 	if err = database.DB.Save(&course).Error; err != nil {
 		panic(err)
 	}
-	a.JsonSuccess(c, http.StatusCreated, course.ToBasicCourseSchema())
+	a.JsonSuccess(c, http.StatusCreated, course.ToBasicCourseSchema(uid))
 }
 
 func (a *CourseController) List(c *gin.Context) {
+	uid := GetAuthUserClaims(c)
 	var courses []models.Course
 	var topicIDint int
 	if topicID, res := c.Params.Get("topic_id"); res {
@@ -76,12 +77,13 @@ func (a *CourseController) List(c *gin.Context) {
 	minifiedCourses := make([]models.BasicCourseSchema, 0)
 	for _, course := range courses {
 		fixLecturesKey(&course)
-		minifiedCourses = append(minifiedCourses, *course.ToBasicCourseSchema())
+		minifiedCourses = append(minifiedCourses, *course.ToBasicCourseSchema(uid))
 	}
 	a.JsonSuccess(c, http.StatusOK, &minifiedCourses)
 }
 
 func (a *CourseController) Get(c *gin.Context) {
+	uid := GetAuthUserClaims(c)
 	var course models.Course
 	var courseIDint int
 	if courseID, res := c.Params.Get("course_id"); res {
@@ -102,7 +104,7 @@ func (a *CourseController) Get(c *gin.Context) {
 		return
 	}
 	fixLecturesKey(&course)
-	a.JsonSuccess(c, http.StatusOK, course.ToBasicCourseSchema())
+	a.JsonSuccess(c, http.StatusOK, course.ToBasicCourseSchema(uid))
 }
 
 func fixLecturesKey(course *models.Course) {
@@ -157,7 +159,7 @@ func (a *CourseController) Put(c *gin.Context) {
 		panic(err)
 	}
 	fixLecturesKey(&course)
-	a.JsonSuccess(c, http.StatusOK, course.ToBasicCourseSchema())
+	a.JsonSuccess(c, http.StatusOK, course.ToBasicCourseSchema(uid))
 }
 
 func (a *CourseController) Delete(c *gin.Context) {

@@ -35,7 +35,7 @@ func (a *TopicsController) Create(c *gin.Context) {
 	if err := database.DB.Save(&topic).Error; err != nil {
 		panic(err)
 	}
-	a.JsonSuccess(c, http.StatusCreated, topic.ToBasicTopicSchema())
+	a.JsonSuccess(c, http.StatusCreated, topic.ToBasicTopicSchema(uid))
 }
 
 func (a *TopicsController) List(c *gin.Context) {
@@ -53,14 +53,16 @@ func (a *TopicsController) List(c *gin.Context) {
 		}
 	}
 	minifiedTopics := make([]models.BasicTopicSchema, 0)
+	usID := GetAuthUserClaims(c)
 	for _, topic := range topics {
 		fixCoursesKey(&topic)
-		minifiedTopics = append(minifiedTopics, *topic.ToBasicTopicSchema())
+		minifiedTopics = append(minifiedTopics, *topic.ToBasicTopicSchema(usID))
 	}
 	a.JsonSuccess(c, http.StatusOK, &minifiedTopics)
 }
 
 func (a *TopicsController) Get(c *gin.Context) {
+	uid := GetAuthUserClaims(c)
 	var topic models.Topic
 	topicID, res := c.Params.Get("topic_id")
 	if !res {
@@ -72,7 +74,7 @@ func (a *TopicsController) Get(c *gin.Context) {
 		return
 	}
 	fixCoursesKey(&topic)
-	a.JsonSuccess(c, http.StatusOK, topic.ToBasicTopicSchema())
+	a.JsonSuccess(c, http.StatusOK, topic.ToBasicTopicSchema(uid))
 }
 
 func fixCoursesKey(t *models.Topic) {
@@ -118,7 +120,7 @@ func (a *TopicsController) Put(c *gin.Context) {
 		return
 	}
 	fixCoursesKey(&topic)
-	a.JsonSuccess(c, http.StatusOK, topic.ToBasicTopicSchema())
+	a.JsonSuccess(c, http.StatusOK, topic.ToBasicTopicSchema(uid))
 }
 
 func (a *TopicsController) Delete(c *gin.Context) {

@@ -143,7 +143,7 @@ func (s SubscribesController) List(c *gin.Context) {
 	topicsBasic := make([]models.BasicTopicSchema, 0)
 	for _, t := range topics {
 		fixCoursesKey(&t)
-		topicsBasic = append(topicsBasic, *t.ToBasicTopicSchema())
+		topicsBasic = append(topicsBasic, *t.ToBasicTopicSchema(uid))
 	}
 	var courseSubs []models.CourseSubscribe
 	if err := database.DB.Where("user_id = ?", uid).Find(&courseSubs).Error; err != nil {
@@ -160,7 +160,7 @@ func (s SubscribesController) List(c *gin.Context) {
 	coursesBasic := make([]models.BasicCourseSchema, 0)
 	for _, c := range courses {
 		fixLecturesKey(&c)
-		coursesBasic = append(coursesBasic, *c.ToBasicCourseSchema())
+		coursesBasic = append(coursesBasic, *c.ToBasicCourseSchema(uid))
 	}
 	s.JsonSuccess(c, http.StatusOK, subsReturn{
 		Topics:  topicsBasic,

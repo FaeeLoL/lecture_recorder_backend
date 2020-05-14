@@ -131,25 +131,44 @@ func (s SubscribesController) List(c *gin.Context) {
 	if err := database.DB.Where("user_id = ?", uid).Find(&topicSubs).Error; err != nil {
 		panic(err)
 	}
-	topicSubsBasic := make([]models.BasicTopicSubscribeSchema, 0)
+
+	topics := make([]models.Topic, 0)
 	for _, s := range topicSubs {
-		topicSubsBasic = append(topicSubsBasic, *s.ToBasicTopicSubscribeSchema())
+		var t models.Topic
+		if err := database.DB.Where("id = ?", s.TopicID).First(&t).Error; err != nil {
+			panic(err)
+		}
+		topics = append(topics, t)
+	}
+	topicsBasic := make([]models.BasicTopicSchema, 0)
+	for _, t := range topics {
+		fixCoursesKey(&t)
+		topicsBasic = append(topicsBasic, *t.ToBasicTopicSchema())
 	}
 	var courseSubs []models.CourseSubscribe
 	if err := database.DB.Where("user_id = ?", uid).Find(&courseSubs).Error; err != nil {
 		panic(err)
 	}
-	courseSubsBasic := make([]models.BasicCourseSubscribeSchema, 0)
+	courses := make([]models.Course, 0)
 	for _, s := range courseSubs {
-		courseSubsBasic = append(courseSubsBasic, *s.ToBasicCourseSubscribeSchema())
+		var c models.Course
+		if err := database.DB.Where("id = ?", s.CourseID).First(&c).Error; err != nil {
+			panic(err)
+		}
+		courses = append(courses, c)
+	}
+	coursesBasic := make([]models.BasicCourseSchema, 0)
+	for _, c := range courses {
+		fixLecturesKey(&c)
+		coursesBasic = append(coursesBasic, *c.ToBasicCourseSchema())
 	}
 	s.JsonSuccess(c, http.StatusOK, subsReturn{
-		Topics:  topicSubsBasic,
-		Courses: courseSubsBasic,
+		Topics:  topicsBasic,
+		Courses: coursesBasic,
 	})
 }
 
 type subsReturn struct {
-	Topics  []models.BasicTopicSubscribeSchema  `json:"topics"`
-	Courses []models.BasicCourseSubscribeSchema `json:"courses"`
+	Topics  []models.BasicTopicSchema  `json:"topics"`
+	Courses []models.BasicCourseSchema `json:"courses"`
 }

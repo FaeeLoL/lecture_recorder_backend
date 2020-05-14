@@ -54,6 +54,7 @@ func (a *TopicsController) List(c *gin.Context) {
 	}
 	minifiedTopics := make([]models.BasicTopicSchema, 0)
 	for _, topic := range topics {
+		fixCoursesKey(&topic)
 		minifiedTopics = append(minifiedTopics, *topic.ToBasicTopicSchema())
 	}
 	a.JsonSuccess(c, http.StatusOK, &minifiedTopics)
@@ -70,7 +71,12 @@ func (a *TopicsController) Get(c *gin.Context) {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	fixCoursesKey(&topic)
 	a.JsonSuccess(c, http.StatusOK, topic.ToBasicTopicSchema())
+}
+
+func fixCoursesKey(t *models.Topic) {
+	database.DB.Where("topic = ?", t.ID).Find(&t.Courses)
 }
 
 func (a *TopicsController) Put(c *gin.Context) {
@@ -111,6 +117,7 @@ func (a *TopicsController) Put(c *gin.Context) {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	fixCoursesKey(&topic)
 	a.JsonSuccess(c, http.StatusOK, topic.ToBasicTopicSchema())
 }
 

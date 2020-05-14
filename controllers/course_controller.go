@@ -75,6 +75,7 @@ func (a *CourseController) List(c *gin.Context) {
 	}
 	minifiedCourses := make([]models.BasicCourseSchema, 0)
 	for _, course := range courses {
+		fixLecturesKey(&course)
 		minifiedCourses = append(minifiedCourses, *course.ToBasicCourseSchema())
 	}
 	a.JsonSuccess(c, http.StatusOK, &minifiedCourses)
@@ -100,7 +101,12 @@ func (a *CourseController) Get(c *gin.Context) {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	fixLecturesKey(&course)
 	a.JsonSuccess(c, http.StatusOK, course.ToBasicCourseSchema())
+}
+
+func fixLecturesKey(course *models.Course) {
+	database.DB.Where("course_id = ?", course.ID).Find(&course.Audios)
 }
 
 func (a *CourseController) Put(c *gin.Context) {
@@ -150,6 +156,7 @@ func (a *CourseController) Put(c *gin.Context) {
 	if err := database.DB.Save(&course).Error; err != nil {
 		panic(err)
 	}
+	fixLecturesKey(&course)
 	a.JsonSuccess(c, http.StatusOK, course.ToBasicCourseSchema())
 }
 

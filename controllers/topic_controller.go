@@ -147,8 +147,18 @@ func (a *TopicsController) Delete(c *gin.Context) {
 		a.JsonFail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	deleteTopicCourses(id)
 	database.DB.Delete(&models.TopicSubscribe{}, "topic_id = ?", id)
 	a.JsonSuccess(c, http.StatusNoContent, nil)
+}
+
+func deleteTopicCourses(topicID string) {
+	var courses []models.Course
+	database.DB.Where("topic = ?", topicID).Find(&courses)
+	for _, course := range courses {
+		database.DB.Delete(&models.CourseSubscribe{}, "course_id = ?", course.ID)
+	}
+	database.DB.Delete(models.Course{}, "topic = ?", topicID)
 }
 
 func isTopicNameUnique(name string) bool {
